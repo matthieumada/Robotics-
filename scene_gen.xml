@@ -1,0 +1,59 @@
+<?xml version="1.0" ?>
+<mujoco model="scene">
+    <compiler angle="radian" autolimits="true"/>
+    <option cone="elliptic" gravity="0 0 -9.82" integrator="implicitfast" solver="Newton" timestep="0.002"/>
+    <visual>
+        <global azimuth="120" elevation="-20"/>
+        <rgba haze="0.15 0.25 0.35 1"/>
+    </visual>
+    <statistic center="4 0 0" extent="1" meansize="0.1"/>
+    <include file="assets/UR5eGripper/ur5e2f85.xml"/>
+    <asset>
+        <mesh file="assets/table/sigmund_table.stl" name="table_mesh"/>
+        <texture builtin="gradient" height="3072" rgb1="0.3 0.5 0.7" rgb2="0 0 0" type="skybox" width="512"/>
+        <texture builtin="checker" height="300" mark="edge" markrgb="0.8 0.8 0.8" name="groundplane" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" type="2d" width="300"/>
+        <material name="groundplane" reflectance="0.2" texrepeat="5 5" texture="groundplane" texuniform="true"/>
+    </asset>
+    <worldbody>
+        <geom material="groundplane" name="floor" pos="0 0 -0.74" size="0 0 0.05" type="plane"/>
+        <light bulbradius="0.1" dir="0 0 -1" pos="0 0 0.5" range="100" type="directional"/>
+        <geom condim="6" mesh="table_mesh" name="table_1" pos="0.801 -0.6 0" rgba="0.1 0.1 0.1 1" solimp="0.99 0.999 0.001" solref="0.001 2" type="mesh"/>
+        <geom condim="6" mesh="table_mesh" name="table_2" pos="0 -0.6 0" rgba="0.1 0.1 0.1 1" solimp="0.99 0.999 0.001" solref="0.001 2" type="mesh"/>
+        <body name="cylinder1" pos="0.45 -0.4 0.1" quat="1 0 0 0">
+            <geom conaffinity="0" contype="0" name="cylinder1" rgba="1 1 0 1" size="0.035 0.1" type="cylinder"/>
+        </body>
+        <body name="cylinder2" pos="0.45 -0.2 0.1" quat="1 0 0 0">
+            <geom conaffinity="0" contype="0" name="cylinder2" rgba="1 1 0 1" size="0.035 0.1" type="cylinder"/>
+        </body>
+        <body name="cylinder3" pos="0.45 0 0.1" quat="1 0 0 0">
+            <geom conaffinity="0" contype="0" name="cylinder3" rgba="1 1 0 1" size="0.035 0.1" type="cylinder"/>
+        </body>
+        <body name="cylinder4" pos="0.45 0.2 0.1" quat="1 0 0 0">
+            <geom conaffinity="0" contype="0" name="cylinder4" rgba="1 1 0 1" size="0.035 0.1" type="cylinder"/>
+        </body>
+        <body name="cylinder5" pos="0.45 0.4 0.1" quat="1 0 0 0">
+            <geom conaffinity="0" contype="0" name="cylinder5" rgba="1 1 0 1" size="0.035 0.1" type="cylinder"/>
+        </body>
+        <body name="cylinder6" pos="0.65 -0.4 0.1" quat="1 0 0 0">
+            <geom conaffinity="0" contype="0" name="cylinder6" rgba="1 1 0 1" size="0.035 0.1" type="cylinder"/>
+        </body>
+        <body name="cylinder7" pos="0.65 -0.2 0.1" quat="1 0 0 0">
+            <geom conaffinity="0" contype="0" name="cylinder7" rgba="1 1 0 1" size="0.035 0.1" type="cylinder"/>
+        </body>
+        <body name="cylinder8" pos="0.65 0 0.1" quat="1 0 0 0">
+            <geom conaffinity="0" contype="0" name="cylinder8" rgba="1 1 0 1" size="0.035 0.1" type="cylinder"/>
+        </body>
+        <body name="cylinder9" pos="0.65 0.2 0.1" quat="1 0 0 0">
+            <geom conaffinity="0" contype="0" name="cylinder9" rgba="1 1 0 1" size="0.035 0.1" type="cylinder"/>
+        </body>
+        <body name="cylinder10" pos="0.65 0.4 0.1" quat="1 0 0 0">
+            <geom conaffinity="0" contype="0" name="cylinder10" rgba="1 1 0 1" size="0.035 0.1" type="cylinder"/>
+        </body>
+        <body name="zone_pickup" pos="0.6 0 -0.01" quat="1 0 0 0">
+            <geom conaffinity="0" contype="0" name="zone_pickup" rgba="0 1 0 0.1" size="0.2 0.6 0.01" type="box"/>
+        </body>
+        <body name="zone_drop" pos="-0.6 0 -0.01" quat="1 0 0 0">
+            <geom conaffinity="0" contype="0" name="zone_drop" rgba="1 0 0 0.1" size="0.2 0.6 0.01" type="box"/>
+        </body>
+    </worldbody>
+</mujoco>
