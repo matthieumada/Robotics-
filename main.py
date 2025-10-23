@@ -25,9 +25,11 @@ from robot import *
 from cam import *
 from xml_generator import xml_file
 #from exercises.exercise_1 import program
-#from exercises.exercise_2 import program
+#from exercises.exercise_2_sol import program
 #from exercises.exercise_3 import program
-from exercises.exercise_4 import program
+#from exercises.exercise_4 import program
+from exercises.exercise_5 import program
+#rom exercises.exercise_unknown import program
 # Supporting: Ubuntu 22-24, python 3.10 
 
 if __name__ == "__main__":
@@ -35,8 +37,13 @@ if __name__ == "__main__":
     # mj.GLContext(max_width=1280, max_height=720)  # Adjust size as needed
 
     model_path = "scene.xml"  # Replace with your XML file
+
     #exo 3 
     #model path = xml_file()   # Generate the XML file for the scene
+
+    #exo 5
+    #model_path = "scene_grasp_track.xml"
+    
     time_step = 0.002 # Defined in scene.xml 
     
     m = mujoco.MjModel.from_xml_path(model_path)

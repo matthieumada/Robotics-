@@ -10,6 +10,11 @@ from robot import *
 # Global queue container for trajectories
 
 QUEUE = []
+box_pick1 = []
+box_pick2 = []
+cylinder_pick1 = []
+cylinder_pick2 = []
+tblock_pick = []
 
 
 def linear_q_interpolation(start_q, end_q, steps):
@@ -19,10 +24,10 @@ def linear_q_interpolation(start_q, end_q, steps):
     t0 = 0
     tf = 1
     T = tf-t0
-    i = 0
+    # Calculate of pisition with linear interpolation
     for t in np.linspace(t0, tf, steps):
         q_t = q0 + t* (qf-q0) /T 
-        QUEUE.append((q_t,0)) # qpose and gripper value
+        QUEUE.append((q_t,None)) # qpose and gripper value
     
 
 
@@ -31,31 +36,23 @@ def parabolic_q_interpolation(start_q, end_q, steps):
     qf = end_q
     t0 = 0
     tf = 1
-    td = 0.2# duration of travel
-    tb = 0.8# blend time
+    td = tf - t0 # duration of travel
+    tb = tf * 0.3 # blend time
 
     # Calculate required acceleration for the blend
-    ddqb = 0.2 # constant acceleration during blend
-
+    ddqb = (qf-q0) / (tb * (td -tb)) # constant acceleration during blend
+    print(" Consntant acceleration during blend: ", ddqb)
     for t in np.linspace(t0, tf, steps):
         # acceleration phase
-        if t<td:
-            q_t =q0 +0.5*ddqb*t**2
-            QUEUE.append((q_t, None))
-            velocity.append(ddqb*t)
-            acceleration.append(ddqb)
-        # constant velcoity phase
-        elif td<=t<tb:
-            q_t = q_t + velocity[-1]*(t-td)
-            QUEUE.append((q_t, None))
-            velocity.append(velocity[-1])
-            acceleration.append(0)
-        # deceleration phase
-        elif tb<=t<=tf:
-            q_t = qf - 0.5*ddqb*(t - tb)**2
-            QUEUE.append((q_t, None))
-            velocity.append(velocity[-1] - ddqb*(t-tb))
-            acceleration.append(-ddqb)
+        if (t0<=t) and (t<t0*tb):
+            q_t = q0 + 0.5 * ddqb *(tf-t0)**2
+
+        elif ((t0 + tb)<=t) and (t< tf -tb):
+            q_t = q0 + ddqb*tb*(t-t0-tb/2)
+ 
+
+        elif tf-tb <=0 and t<=tf:
+            q_t = qf - 0.5*ddqb*(tf - t)**2
 
 
 def program(d, m):
@@ -70,11 +67,9 @@ def program(d, m):
     object_list = ["pickup_point_box", "pickup_point_cylinder", "pickup_point_tblock", "pickup_point_cylinder", "pickup_point_box"]
     q0 = current_q
     t0 = current_frame
+    
     for obj in object_list:
-        # reset QUEUE for each object
-        QUEUE = [] 
-        velocity = np.array([])
-        acceleration = np.array([])
+
         # # Define grasping frames for object: box
         obj_frame = get_mjobj_frame(model=m, data=d, obj_name=obj) # Get body frame
         obj_frame = obj_frame * sm.SE3.Rx(-np.pi)
@@ -85,59 +80,35 @@ def program(d, m):
         linear_q_interpolation(start_q=q0, end_q=obj_desired_q, steps=300)
 
         # STEP 2: Implement your own parabolic-q interpolation
-        #parabolic_q_interpolation(start_q=q0, end_q=obj_desired_q, steps=300)
+        parabolic_q_interpolation(start_q=q0, end_q=obj_desired_q, steps=300)
         
         q0 = obj_desired_q
-        t0 = obj_frame
 
-    data = []
-    for q_pose, gripper_value in QUEUE:
-        # extract q_pose to data for plotting
-        data.append(q_pose[0]) # y-value
+    data = [q_pose[0] for q_pose, _ in QUEUE] # one joint value to plot
 
-    t = np.linspace(0,1,len(data))
-    # Plot trajectory profile, position, velocity, accelaration
-    plt.figure()
-    
-    QUEUE = np.array(QUEUE[])
-    velocity = np.diff(QUEUE)
-    acceleration = np.diff(velocity)
-    # Position
-    print(len(data))
-    plt.subplot(3, 1, 1)
-    plt.plot(t, data, label='position')
-    plt.title("Position")
-    plt.ylabel("Position")
-    plt.xlabel("Time [s]")
-    plt.legend()
+    fig, axs = plt.subplots(4)
+    fig.suptitle('Trajectory profiles')
 
-    # Velocity
-    print(len(velocity))
-    plt.subplot(3, 1, 2)
-    plt.plot(t, velocity, label='velocity')
-    plt.title("Speed")
-    plt.ylabel("Speed")
-    plt.xlabel("Time [s]")
-    plt.legend()
+    pos = np.array(data)
+    vel = np.diff(pos)
+    acc = np.diff(vel)
+    jerk = np.diff(acc)
 
-    # 3. Accélération
-    print(len(acceleration))
-    plt.subplot(3, 1, 3)
-    plt.plot(t, acceleration, label='acceleration')
-    plt.title("Acceleration")
-    plt.xlabel("Time [s]")
-    plt.ylabel("Accélération")
-    plt.legend()
+    axs[0].plot(pos)
+    axs[1].plot(vel)
+    axs[2].plot(acc)
+    axs[3].plot(jerk)
 
-    plt.tight_layout()
-    plt.savefig("/home/delinm/Documents/Robotics_Computer_Vision/Robotics/exercises/trajectory_profile_last_object_ex4.png")
-    plt.show(block=False)
-    plt.pause(5)
-    plt.close()
+    # axs[2].set_xlabel("")
+    axs[0].set_ylabel("Position")
+    axs[1].set_ylabel("Velocity")
+    axs[2].set_ylabel("Accelaration")
+    axs[3].set_ylabel("Jerk")
+
+    plt.savefig("trajectory_profile.png")
 
     # The calculated trajectory from the robot is sent to the controller
     return QUEUE
-    
 
        
          
