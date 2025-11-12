@@ -18,6 +18,11 @@ def get_joint_range(m, num_joint):
         joint_id = m.joint(joint_name[i]).id
         lows.append(m.jnt_range[joint_id][0])
         highs.append(m.jnt_range[joint_id][1])
+    # define an adequate range toenable to reach the box:
+    #  especially some joint must positive as shoulder lift joiint
+    print("before lows:", lows)
+    lows[1] = 0.0
+    print("lows", lows)
     return lows, highs
 
 class StateValidator:
@@ -80,6 +85,8 @@ def plan(d, m, start_q, goal_q):
     #planner = og.RRTConnect(ss.getSpaceInformation())
 
     # PPM planner
+    # find well path and optimized and reutilisable 
+    # slow to build and need a gret many of sample
     planner = og.PRM(ss.getSpaceInformation())
     ss.setPlanner(planner)
     
@@ -124,7 +131,7 @@ def program(d, m):
     trajectory = plan(d,m, start_q, obj_desired_q)
 
     # Define grasping frames for object: box
-    obj_frame = get_mjobj_frame(model=m, data=d, obj_name="pickup_point_box") # Get body frame
+    obj_frame = get_mjobj_frame(model=m, data=d, obj_name="pickup_point_box") *sm.SE3.Ry(-np.pi) # Get body frame
     # TODO: Plan a collision free trajectory from the new current q-pose to a q-pose representating the pose in obj_frame
     robot.queue = []
     for q in trajectory:
@@ -133,15 +140,16 @@ def program(d, m):
     # print("trajectory:", trajectory[-1])
 
     # print(" --- Grasp the box --- ")
-    # # --- Trial to bring the box up ---
-    # # catch the box by closing the gripper
-    # robot.queue.append((np.array(trajectory[-1], dtype=np.float64), 255))
-    # current_q = robot.get_current_q()
-    # obj_frame = obj_frame * sm.SE3.Tz(-0.01) # move 
-    # obj_desired_q = robot.robot_ur5.ik_LM(Tep = obj_frame, q0 = current_q)[0]# compute the inverse kinematics to know how to get to the desired frame
-    # trajectory = plan(d,m,current_q,obj_desired_q)
-    # for q in trajectory:
-    #     robot.queue.append((np.array(q, dtype=np.float64), 255))
+    # --- Trial to bring the box up ---
+    # catch the box by closing the gripper
+    robot.queue.append((np.array(trajectory[-1], dtype=np.float64), 255))
+    current_q = robot.queue[-1][0]
+    obj_frame = obj_frame * sm.SE3.Tz(0.1) # move 
+    obj_desired_q = robot.robot_ur5.ik_LM(Tep = obj_frame, q0 = current_q)[0]
+    print("Inverse kinamtic trial:",robot.robot_ur5.ik_LM(Tep = obj_frame, q0 = current_q))# compute the inverse kinematics to know how to get to the desired frame
+    trajectory = plan(d,m,current_q,obj_desired_q)
+    for q in trajectory:
+        robot.queue.append((np.array(q, dtype=np.float64), 255))
     return robot.queue
 
     
