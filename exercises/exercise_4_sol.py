@@ -8,66 +8,50 @@ from robot import *
 
 
 # Global queue container for trajectories
-
 QUEUE = []
-box_pick1 = []
-box_pick2 = []
-cylinder_pick1 = []
-cylinder_pick2 = []
-tblock_pick = []
-
 
 def linear_q_interpolation(start_q, end_q, steps):
-    global QUEUE, velocity, acceleration
     q0 = start_q
     qf = end_q
     t0 = 0
     tf = 1
-    T = tf-t0
-    # Calculate of pisition with linear interpolation
+
     for t in np.linspace(t0, tf, steps):
-        q_t = q0 + (t-t0)* (qf-q0) /T 
-        QUEUE.append((q_t,None)) # qpose and gripper value
-    
+        s = (t-t0)/(tf-t0)
+        q_t = q0 + s * (qf - q0)
+        QUEUE.append((q_t, None))
 
 def parabolic_q_interpolation(start_q, end_q, steps):
     q0 = start_q
     qf = end_q
     t0 = 0
     tf = 1
-    td = tf - t0 # duration of travel
+    td = tf-t0 # duration of travel
     tb = tf * 0.3 # blend time
 
     # Calculate required acceleration for the blend
-    ddqb = (qf-q0) / (tb * (td -tb)) # constant acceleration during blend
-    print(" Consntant acceleration during blend: ", ddqb)
+    ddqb = (qf - q0) / (tb * (td - tb))  # constant acceleration during blend
+    print(ddqb)
+
     for t in np.linspace(t0, tf, steps):
-        # acceleration phase
-        if (t0<=t) and (t<t0 + tb):
-            q_t = q0 + 0.5 * ddqb *(t-t0)**2
-
-        elif ((t0 + tb)<=t) and (t< tf - tb):
+        if t0 <= t and t < t0 + tb:
+            q_t = q0 + 0.5 * ddqb*(t-t0)**2
+        elif t0 + tb <= t and t < tf - tb:
             q_t = q0 + ddqb*tb*(t-t0-tb/2)
+        elif  tf-tb <= t and t < tf:
+            q_t = qf - 0.5*ddqb*(tf-t)**2
 
-
-        elif tf-tb <=t and t<tf:
-            q_t = qf - 0.5*ddqb*(tf - t)**2
-        QUEUE.append((q_t,None))
+        QUEUE.append((q_t, None))
 
 
 def program(d, m):
-    # global value 
-    global QUEUE, velocity, acceleration
     # Define our robot object
     robot = UR5robot(data=d, model=m)
 
-    current_frame = robot.get_current_tcp()
     current_q = robot.get_current_q()
 
     object_list = ["pickup_point_box", "pickup_point_cylinder", "pickup_point_tblock", "pickup_point_cylinder", "pickup_point_box"]
     q0 = current_q
-    t0 = current_frame
-    
     for obj in object_list:
 
         # # Define grasping frames for object: box
@@ -105,10 +89,11 @@ def program(d, m):
     axs[2].set_ylabel("Accelaration")
     axs[3].set_ylabel("Jerk")
 
-    plt.savefig("./display/trajectory_profile_parabolic.png")
+    plt.savefig("trajectory_profile.png")
 
     # The calculated trajectory from the robot is sent to the controller
     return QUEUE
+    
 
        
          

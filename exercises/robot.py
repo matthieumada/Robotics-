@@ -160,7 +160,7 @@ class UR5robot():
         current_q = self.d.qpos[qpos_indices]
         return current_q
     
-    def set_gripper(self, value, t=100):
+    def set_gripper(self, value, t=300):
         last_q = self.queue[-1][0]
         for _ in range(t):
             self.queue.append((last_q, value))
