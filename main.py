@@ -32,10 +32,10 @@ from xml_generator import xml_file
 #from exercises.exercise_3 import program
 #from exercises.exercise_4 import program
 #from exercises.exercise_5 import program
-#from exercises.exercise_6_sol import program 
+from exercises.exercise_6_sol import program 
 #from exercises.exercise_7 import program
 #from exercises.exercise_8 import program
-from exercises.exercise_9_sol import program
+#from exercises.exercise_9_sol import program
 
 #rom exercises.exercise_unknown import program
 # Supporting: Ubuntu 22-24, python 3.10 
@@ -53,10 +53,11 @@ if __name__ == "__main__":
     #model_path = "scene_grasp_track.xml"
 
     #exo 6
-    #model_path = "scene_obstacles.xml"
+    model_path ="scene_obstacles.xml"
 
     # exo 9 
-    model_path = "scene_grasp_stack.xml"
+    #model_path = "scene_grasp_stack.xml"
+
     
     time_step = 0.002 # Defined in scene.xml 
     
@@ -113,8 +114,8 @@ if __name__ == "__main__":
                 desired_cmd, gripper_value = cmd_element
 
                 if isinstance(desired_cmd, np.ndarray) and not None:
-                    #ur_ctrl_qpos(data=d, q_desired=desired_cmd) # Controls the robot, i.e., runs dynamics. (default)
-                    ur_set_qpos(data=d, q_desired=desired_cmd) # Sets the robot to a position (forcefully), i.e., no dynamics. (useful for visualization)
+                    ur_ctrl_qpos(data=d, q_desired=desired_cmd) # Controls the robot, i.e., runs dynamics. (default)
+                    #ur_set_qpos(data=d, q_desired=desired_cmd) # Sets the robot to a position (forcefully), i.e., no dynamics. (useful for visualization)
 
                 if gripper_value is not None:
                     hande_ctrl_qpos(data=d, gripper_value=gripper_value)
