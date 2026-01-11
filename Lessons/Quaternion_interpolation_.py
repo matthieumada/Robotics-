@@ -41,4 +41,6 @@ Q2.plot(ax = ax, frame='B', color='red')
 
 # plot interpolated quaternion
 
+# animated 
+QQ.animate(frame='A')
 plt.show()

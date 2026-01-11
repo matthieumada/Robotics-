@@ -44,9 +44,15 @@ print("Inverse of qa: ", qa.inv())
 print("Inverse of qb: ", qb.inv())
 
 rt_qb = sm.base.q2r(qb.vec)
+q_bis = -qb
+rt_qb2 = sm.base.q2r(q_bis.vec)
 print("Rotation matrix from qb: \n", rt_qb)
+print("Rotation matrix from -qb: \n", rt_qb2)
+
 
 Q = sm.base.r2x(rt_qb)
+Q_bis = sm.base.r2x(rt_qb2)
 print("Quaternion from rotation matrix: ", Q)
+print("Quaternion from rotation matrix: ", Q_bis)
 
 

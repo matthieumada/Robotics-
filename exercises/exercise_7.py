@@ -50,7 +50,7 @@ def rrt_plan(d, m, start_q, goal_q):
 
     # ===== EXPLICITLY SET PLANNER =====
     # Planner is RRT
-    planner = og.RRT(ss.getSpaceInformation())
+    planner = og.RRT(ss.getSpaceInformation()
     ss.setPlanner(planner)
     
     # Solve the problem
